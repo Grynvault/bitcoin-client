@@ -50,6 +50,7 @@ const signPsbt = async () => {
 
 function App() {
 	const [account, setAccount] = useState(null);
+	const [step, setStep] = useState(1);
 	const [value, setValue] = useState(0);
 
 	const connectUnisatWallet = async () => {
@@ -97,7 +98,11 @@ function App() {
 						<CustomTabPanel
 							value={value}
 							index={0}>
-							<LoanCreation />
+							<LoanCreation
+								account={account}
+								step={step}
+								setStep={setStep}
+							/>
 						</CustomTabPanel>
 						<CustomTabPanel
 							value={value}
