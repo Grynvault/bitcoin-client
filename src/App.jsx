@@ -1,12 +1,15 @@
 /** @format */
 
 import { useState } from 'react';
+import LoanCreation from './pages/LoanCreation';
+import LoanRepayment from './pages/LoanRepayment';
+//MUI Imports
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+//CSS
 import './App.css';
-import { Buffer } from 'buffer';
-import process from 'process';
-
-window.Buffer = Buffer;
-window.process = process;
 
 const connectUnisat = async () => {
 	if (!window.unisat) {
@@ -46,14 +49,93 @@ const signPsbt = async () => {
 };
 
 function App() {
-	const [count, setCount] = useState(0);
+	const [account, setAccount] = useState(null);
+	const [value, setValue] = useState(0);
+
+	const connectUnisatWallet = async () => {
+		const account = await connectUnisat();
+		setAccount(account);
+	};
+
+	const handleChange = (event, newValue) => {
+		setValue(newValue);
+	};
 
 	return (
 		<>
-			<h1>Grynvault Bitcoin Bond</h1>
-			<button onClick={signPsbt}>Sign Psbt</button>
+			{account ? (
+				<>
+					<h2>
+						Welcome to Grynvault
+						<br />
+						Bitcoin Lending Platform
+					</h2>
+					<Button
+						variant='outlined'
+						onClick={connectUnisatWallet}>
+						Connect Unisat Wallet
+					</Button>
+				</>
+			) : (
+				<>
+					<Box sx={{ width: '100%' }}>
+						<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+							<Tabs
+								value={value}
+								onChange={handleChange}
+								aria-label='basic tabs example'>
+								<Tab
+									label='Create Loan'
+									{...a11yProps(0)}
+								/>
+								<Tab
+									label='Pay Loan'
+									{...a11yProps(1)}
+								/>
+							</Tabs>
+						</Box>
+						<CustomTabPanel
+							value={value}
+							index={0}>
+							<LoanCreation />
+						</CustomTabPanel>
+						<CustomTabPanel
+							value={value}
+							index={1}>
+							<LoanRepayment />
+						</CustomTabPanel>
+					</Box>
+				</>
+			)}
 		</>
 	);
 }
 
 export default App;
+
+/**
+ *
+ * Components
+ *
+ */
+function CustomTabPanel(props) {
+	const { children, value, index, ...other } = props;
+
+	return (
+		<div
+			role='tabpanel'
+			hidden={value !== index}
+			id={`simple-tabpanel-${index}`}
+			aria-labelledby={`simple-tab-${index}`}
+			{...other}>
+			{value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+		</div>
+	);
+}
+
+function a11yProps(index) {
+	return {
+		id: `simple-tab-${index}`,
+		'aria-controls': `simple-tabpanel-${index}`,
+	};
+}
